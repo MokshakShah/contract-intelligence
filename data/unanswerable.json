@@ -1,1 +1,222 @@
-[]
+[
+  {
+    "query": "Consider the Netflix-Disney carriage agreement; What is the notice period for terminating this contract?",
+    "category": "named_absent_contract",
+    "reason": "The indexed contracts contain no Netflix-Disney carriage agreement."
+  },
+  {
+    "query": "Consider the Tesla and Panasonic battery supply contract; What is the governing law for this agreement?",
+    "category": "named_absent_company",
+    "reason": "Neither this named contract nor its parties are represented in the indexed CUAD subset."
+  },
+  {
+    "query": "Consider the Apple-Google advertising partnership; What is the renewal term under this agreement?",
+    "category": "named_absent_company",
+    "reason": "The indexed corpus has no Apple-Google advertising partnership."
+  },
+  {
+    "query": "Consider the Warner Bros. and HBO Max distribution agreement; Is there a cap on liability?",
+    "category": "named_absent_contract",
+    "reason": "No Warner Bros.-HBO Max distribution agreement is among the indexed documents."
+  },
+  {
+    "query": "Consider the Microsoft-OpenAI cloud services contract; What audit rights does the customer receive?",
+    "category": "named_absent_company",
+    "reason": "The named Microsoft-OpenAI contract is outside the indexed corpus."
+  },
+  {
+    "query": "Consider the Coca-Cola and McDonald's promotion agreement; What licenses are granted?",
+    "category": "named_absent_company",
+    "reason": "The indexed contracts do not include this named promotion agreement."
+  },
+  {
+    "query": "Consider the Amazon and Whole Foods acquisition agreement; What is the expiration date?",
+    "category": "named_absent_contract",
+    "reason": "This named acquisition agreement is not one of the indexed CUAD contracts."
+  },
+  {
+    "query": "Consider the Spotify-Warner music licensing contract; What minimum commitment is required?",
+    "category": "named_absent_contract",
+    "reason": "No Spotify-Warner music licensing contract is indexed."
+  },
+  {
+    "query": "Consider the Boeing-Airbus cooperation agreement; What warranties survive termination?",
+    "category": "named_absent_company",
+    "reason": "The named Boeing-Airbus agreement is absent from the indexed documents."
+  },
+  {
+    "query": "Consider the Hulu and NBCUniversal content agreement; What is the renewal notice deadline?",
+    "category": "named_absent_contract",
+    "reason": "The indexed subset contains no Hulu-NBCUniversal content agreement."
+  },
+  {
+    "query": "Consider the Meta-Cambridge Analytica data services agreement; What security obligations apply?",
+    "category": "named_absent_contract",
+    "reason": "This named agreement is not present in the indexed corpus."
+  },
+  {
+    "query": "Consider the Nike and Adidas endorsement contract; What are the permitted promotional uses?",
+    "category": "named_absent_company",
+    "reason": "No Nike-Adidas endorsement contract is among the indexed documents."
+  },
+  {
+    "query": "Consider the Disney-Fox merger agreement; What escrow amount is required at closing?",
+    "category": "named_absent_contract",
+    "reason": "The indexed corpus has no Disney-Fox merger agreement."
+  },
+  {
+    "query": "Consider the Airbnb and Marriott lodging partnership; What is the termination fee?",
+    "category": "named_absent_company",
+    "reason": "The named lodging partnership is not represented in the indexed contracts."
+  },
+  {
+    "query": "Consider the FedEx-UPS logistics agreement; What service-level credit applies for delays?",
+    "category": "named_absent_contract",
+    "reason": "No FedEx-UPS logistics agreement is indexed."
+  },
+  {
+    "query": "Consider the Verizon and AT&T roaming agreement; What geographic territory is covered?",
+    "category": "named_absent_company",
+    "reason": "The indexed documents do not contain this named roaming agreement."
+  },
+  {
+    "query": "Consider the Salesforce-Slack integration agreement; What is the annual subscription price?",
+    "category": "named_absent_contract",
+    "reason": "This named integration agreement is absent from the indexed corpus."
+  },
+  {
+    "query": "Consider the Pfizer-Moderna vaccine collaboration; Which party owns the clinical data?",
+    "category": "named_absent_company",
+    "reason": "The indexed CUAD subset contains no Pfizer-Moderna collaboration."
+  },
+  {
+    "query": "Consider the Target and Walmart retail services agreement; What is the exclusivity period?",
+    "category": "named_absent_contract",
+    "reason": "No Target-Walmart retail services agreement is indexed."
+  },
+  {
+    "query": "Consider the Paramount-Netflix streaming agreement; What is the monthly carriage fee?",
+    "category": "named_absent_contract",
+    "reason": "The named streaming agreement is not in the indexed contracts."
+  },
+  {
+    "query": "Under which provision does this contract comply with the GDPR data-subject access deadline?",
+    "category": "rare_absent_clause",
+    "reason": "The indexed subset does not provide a GDPR-specific data-subject access deadline."
+  },
+  {
+    "query": "What is the appointed data protection officer's name under this agreement?",
+    "category": "rare_absent_clause",
+    "reason": "The indexed contracts do not identify a GDPR data protection officer."
+  },
+  {
+    "query": "What is the deadline for notifying the supervisory authority of a personal-data breach?",
+    "category": "rare_absent_clause",
+    "reason": "A supervisory-authority breach notification deadline is not stated in the indexed subset."
+  },
+  {
+    "query": "Which clause specifies the approved cross-border transfer mechanism for EU personal data?",
+    "category": "rare_absent_clause",
+    "reason": "The indexed contracts do not specify Standard Contractual Clauses or another EU transfer mechanism."
+  },
+  {
+    "query": "What is the arbitration seat in Singapore for this agreement?",
+    "category": "rare_absent_clause",
+    "reason": "No indexed contract establishes a Singapore arbitration seat for the requested agreement."
+  },
+  {
+    "query": "What is the exact liquidated-damages amount of 17.5 million dollars payable upon breach?",
+    "category": "rare_absent_clause",
+    "reason": "The indexed contracts do not provide this requested specific liquidated-damages figure."
+  },
+  {
+    "query": "What percentage royalty is owed on sales made in Brazil under this contract?",
+    "category": "rare_absent_clause",
+    "reason": "The indexed subset does not state the requested Brazil-specific royalty rate."
+  },
+  {
+    "query": "What is the per-incident cyber insurance limit required by this agreement?",
+    "category": "rare_absent_clause",
+    "reason": "The indexed contracts do not specify a per-incident cyber insurance limit."
+  },
+  {
+    "query": "Which clause sets a seven-year retention period for customer personal data?",
+    "category": "rare_absent_clause",
+    "reason": "A seven-year customer-data retention clause is not present in the indexed subset."
+  },
+  {
+    "query": "What is the exact 4.25 percent late-payment interest rate under this agreement?",
+    "category": "rare_absent_clause",
+    "reason": "The requested exact late-payment rate is not available in the indexed contracts."
+  },
+  {
+    "query": "What filing deadline does the employee handbook impose for annual tax forms?",
+    "category": "out_of_domain",
+    "reason": "The indexed material is commercial contracts, not employee handbooks or tax filing guidance."
+  },
+  {
+    "query": "Which employee handbook policy governs reporting a manager's workplace misconduct?",
+    "category": "out_of_domain",
+    "reason": "No employee handbook policy is included in the indexed corpus."
+  },
+  {
+    "query": "When must a company file its quarterly payroll tax return under this agreement?",
+    "category": "out_of_domain",
+    "reason": "Payroll tax filing deadlines are outside the indexed contract content."
+  },
+  {
+    "query": "What vacation accrual rule applies to a full-time employee after five years?",
+    "category": "out_of_domain",
+    "reason": "The indexed contracts do not contain employee leave policies."
+  },
+  {
+    "query": "Which accounting standard determines the employer's annual pension disclosure deadline?",
+    "category": "out_of_domain",
+    "reason": "The question asks for accounting and pension policy information absent from the corpus."
+  },
+  {
+    "query": "What workplace dress-code exception applies during religious holidays?",
+    "category": "out_of_domain",
+    "reason": "The indexed documents are not workplace policy manuals."
+  },
+  {
+    "query": "What is the state tax registration deadline for a new Delaware employer?",
+    "category": "out_of_domain",
+    "reason": "State employer tax registration guidance is not answered by the indexed contracts."
+  },
+  {
+    "query": "Which employee handbook section describes the annual performance-review process?",
+    "category": "out_of_domain",
+    "reason": "No employee handbook is indexed, so this policy cannot be answered."
+  },
+  {
+    "query": "What is the notice period for terminating the Netflix-Disney carriage deal?",
+    "category": "plausible_too_specific",
+    "reason": "The question resembles a contract query but names a deal absent from the indexed corpus."
+  },
+  {
+    "query": "Under the Tesla-Panasonic agreement, what happens to the 12.75 million dollar exclusivity payment?",
+    "category": "plausible_too_specific",
+    "reason": "The named agreement and requested payment are not represented in the indexed documents."
+  },
+  {
+    "query": "What cure period applies to a breach of the Apple-Google advertising partnership?",
+    "category": "plausible_too_specific",
+    "reason": "The named partnership is absent, despite the question's contract-like wording."
+  },
+  {
+    "query": "Which party may appoint the three-person audit committee under the Amazon-Whole Foods contract?",
+    "category": "plausible_too_specific",
+    "reason": "The named contract is not in the indexed CUAD subset."
+  },
+  {
+    "query": "What is the 30-day notice address for the Microsoft-OpenAI cloud services contract?",
+    "category": "plausible_too_specific",
+    "reason": "No Microsoft-OpenAI cloud services contract is indexed."
+  },
+  {
+    "query": "What renewal price adjustment applies in year three of the Spotify-Warner license?",
+    "category": "plausible_too_specific",
+    "reason": "The named Spotify-Warner license is outside the indexed corpus."
+  }
+]
