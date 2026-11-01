@@ -9,6 +9,8 @@ def _threshold(config: dict[str, Any], name: str, default: float) -> float:
 
 
 def should_abstain(results: list[dict[str, Any]], config: dict[str, Any]) -> bool:
+    if config.get("enabled") is False:
+        return False
     rule = config.get("rule", "none")
     if rule == "none" or not results:
         return False

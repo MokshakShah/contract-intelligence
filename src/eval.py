@@ -16,7 +16,7 @@ from .data import (
     query_text,
 )
 from .metrics import average_metrics, query_metrics
-from .retrieval import Retriever
+from .retrieval import build_index
 from .abstention import should_abstain
 
 KS = (1, 2, 4, 8, 16, 32)
@@ -35,10 +35,7 @@ def run(config_path: Path, split: str, final: bool = False) -> dict:
         query for query in load_mini_queries()
         if assign_split(query_text(query)) == split
     ]
-    all_queries = load_mini_queries()
-    corpus = load_corpus(needed_document_paths(all_queries))
-    chunks = chunk_documents(corpus, config["chunking"])
-    retriever = Retriever(chunks, config["retrieval"])
+    retriever = build_index(json.dumps(config, sort_keys=True))
     rows = []
     retained_rows = []
     abstained = 0

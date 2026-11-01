@@ -21,6 +21,12 @@ def _tokens(text: str) -> list[str]:
     return re.findall(r"[a-z0-9]+", text.lower())
 
 
+def prepare_query(query: str, config: dict[str, Any]) -> str:
+    if config.get("strip_contract_prefix"):
+        query = re.sub(r"^Consider .*?;\s*", "", query.strip(), flags=re.IGNORECASE)
+    return query
+
+
 class Retriever:
     def __init__(self, chunks: list[Chunk], config: dict[str, Any]):
         self.chunks = chunks
@@ -70,6 +76,7 @@ class Retriever:
         return sorted(scores.items(), key=lambda x: x[1], reverse=True)
 
     def retrieve(self, query: str, top_k: int | None = None) -> list[dict[str, Any]]:
+        query = prepare_query(query, self.config)
         limit = top_k or self.top_k
         candidates = self._candidates(query)
         if self.config.get("rerank"):
@@ -105,12 +112,17 @@ def _config_key(config: dict[str, Any]) -> str:
 
 
 @lru_cache(maxsize=4)
-def _cached_service(config_json: str) -> Retriever:
+def build_index(config_json: str) -> Retriever:
     config = json.loads(config_json)
     queries = load_mini_queries()
     corpus = load_corpus(needed_document_paths(queries))
     chunks = chunk_documents(corpus, config.get("chunking", {}))
     return Retriever(chunks, config.get("retrieval", {}))
+
+
+@lru_cache(maxsize=4)
+def _cached_service(config_json: str) -> Retriever:
+    return build_index(config_json)
 
 
 def search(query: str, config: dict[str, Any], k: int | None = None) -> dict[str, Any]:

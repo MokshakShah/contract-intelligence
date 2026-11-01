@@ -17,11 +17,10 @@ from typing import Any
 import yaml
 
 from .abstention import should_abstain
-from .chunking import chunk_documents
 from .data import assign_split, load_corpus, load_mini_queries, needed_document_paths, query_text
 from .diagnose import diagnose
 from .metrics import average_metrics, query_metrics
-from .retrieval import Retriever
+from .retrieval import build_index
 
 SEED = 17
 KS = (8,)
@@ -38,15 +37,13 @@ def _train_data() -> tuple[list[dict], list[dict], dict[str, str]]:
         item for item in json.loads(Path("data/unanswerable.json").read_text(encoding="utf-8"))
         if assign_split(item["query"]) == "train"
     ]
-    corpus = load_corpus(needed_document_paths(benchmark))
+    all_queries = load_mini_queries()
+    corpus = load_corpus(needed_document_paths(all_queries))
     return benchmark, unanswerable, corpus
 
 
 def _evaluate(config: dict[str, Any], benchmark: list[dict], unanswerable: list[dict], corpus: dict[str, str]) -> dict[str, Any]:
-    retriever = Retriever(
-        chunk_documents(corpus, config["chunking"]),
-        config["retrieval"],
-    )
+    retriever = build_index(json.dumps(config, sort_keys=True))
     abstention_config = config.get("abstention", {"rule": "none"})
     benchmark_results = [retriever.retrieve(query_text(item), 8) for item in benchmark]
     unanswerable_results = [retriever.retrieve(item["query"], 8) for item in unanswerable]
@@ -66,38 +63,22 @@ def _evaluate(config: dict[str, Any], benchmark: list[dict], unanswerable: list[
     }
 
 
-def _propose(config: dict[str, Any], diagnosis: dict[str, Any], iteration: int) -> tuple[dict, str, str]:
-    dominant = max(diagnosis["counts"], key=diagnosis["counts"].get)
+def _propose(config: dict[str, Any], iteration: int) -> tuple[dict, str, str]:
     candidate = copy.deepcopy(config)
-    rule = "rule"
-    if dominant == "wrong_document":
-        candidate["chunking"]["chunk_size"] = 250 if iteration % 2 else 750
-        candidate["chunking"]["overlap"] = 50 if iteration % 2 else 0
-        reason = "wrong_document dominant: test finer/coarser BM25 evidence windows"
-    elif dominant == "right_doc_wrong_section":
-        candidate["chunking"]["chunk_size"] = 250
-        candidate["chunking"]["overlap"] = 50
-        reason = "right_doc_wrong_section dominant: use smaller overlapping chunks"
-    elif dominant == "right_section_partial_span":
-        candidate["chunking"]["chunk_size"] = 750
-        candidate["chunking"]["overlap"] = 100
-        reason = "right_section_partial_span dominant: enlarge chunks with overlap"
-    elif dominant == "false_abstention":
-        candidate.setdefault("abstention", {})["threshold"] = max(
-            0.0, float(candidate.get("abstention", {}).get("threshold", 0.75)) - 0.05
-        )
-        reason = "false_abstention dominant: lower abstention threshold"
-    else:
-        grid = [
-            (250, 50, "fixed"),
-            (500, 100, "fixed"),
-            (750, 100, "fixed"),
-            (500, 0, "recursive"),
-        ]
-        size, overlap, strategy = grid[iteration % len(grid)]
-        candidate["chunking"].update(chunk_size=size, overlap=overlap, strategy=strategy)
-        reason = "search fallback: deterministic chunking parameter grid"
-        rule = "search"
+    proposals = [
+        ("hybrid BM25+dense", "rule", {"retrieval": {"method": "hybrid"}}),
+        ("recursive chunking", "rule", {"chunking": {"strategy": "recursive"}}),
+        ("200-character chunks", "search", {"chunking": {"chunk_size": 200, "overlap": 50}}),
+        ("300-character chunks", "search", {"chunking": {"chunk_size": 300, "overlap": 50}}),
+        ("800-character chunks", "search", {"chunking": {"chunk_size": 800, "overlap": 100}}),
+        ("query prefix stripping", "rule", {"retrieval": {"strip_contract_prefix": True}}),
+        ("cross-encoder rerank", "rule", {"retrieval": {"rerank": True, "rerank_top_n": 32}}),
+        ("hybrid with 300-character chunks", "search", {"retrieval": {"method": "hybrid"}, "chunking": {"chunk_size": 300, "overlap": 50}}),
+    ]
+    name, rule, changes = proposals[(iteration - 1) % len(proposals)]
+    for section, values in changes.items():
+        candidate.setdefault(section, {}).update(values)
+    reason = f"{name}: deterministic candidate proposal"
     return candidate, reason, rule
 
 
@@ -123,6 +104,7 @@ def run(config_path: Path, iterations: int) -> list[dict[str, Any]]:
     baseline = _evaluate(copy.deepcopy(config), benchmark, unanswerable, corpus)
     current = baseline
     best_config = copy.deepcopy(config)
+    tried = {json.dumps(best_config, sort_keys=True)}
     log_path = Path("experiments/log.jsonl")
     markdown_path = Path("experiments/LOG.md")
     markdown_path.parent.mkdir(parents=True, exist_ok=True)
@@ -131,9 +113,22 @@ def run(config_path: Path, iterations: int) -> list[dict[str, Any]]:
         markdown.write("| Iteration | Change | Diagnosis | Recall@8 | Precision@8 | False abstain | Correct abstain | Decision |\n|---:|---|---|---:|---:|---:|---:|---|\n")
         records = []
         for iteration in range(1, iterations + 1):
-            candidate_config, reason, proposer = _propose(best_config, current["diagnosis"], iteration)
-            candidate = _evaluate(candidate_config, benchmark, unanswerable, corpus)
-            accepted, decision = _accepted(candidate, baseline, current)
+            candidate_config, reason, proposer = _propose(best_config, iteration)
+            fingerprint = json.dumps(candidate_config, sort_keys=True)
+            while fingerprint in tried:
+                iteration += 1
+                candidate_config, reason, proposer = _propose(best_config, iteration)
+                fingerprint = json.dumps(candidate_config, sort_keys=True)
+            tried.add(fingerprint)
+            error = None
+            try:
+                candidate = _evaluate(candidate_config, benchmark, unanswerable, corpus)
+                accepted, decision = _accepted(candidate, baseline, current)
+            except Exception as exc:
+                candidate = current
+                accepted = False
+                error = f"{type(exc).__name__}: {exc}"
+                decision = f"candidate unavailable: {error}"
             if accepted:
                 best_config = candidate_config
                 current = candidate
@@ -150,6 +145,8 @@ def run(config_path: Path, iterations: int) -> list[dict[str, Any]]:
                 "decision": "accept" if accepted else "reject",
                 "decision_reason": decision,
             }
+            if error:
+                record["error"] = error
             with log_path.open("a", encoding="utf-8") as handle:
                 handle.write(json.dumps(record) + "\n")
             markdown.write(
