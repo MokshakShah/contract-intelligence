@@ -5,8 +5,7 @@ chunking:
 retrieval:
   method: bm25
   top_k: 8
-  max_chunks_per_doc: 2
+  max_chunks_per_doc: null
   rerank: false
 abstention:
-  rule: score_threshold
-  threshold: 0.75
+  enabled: false
