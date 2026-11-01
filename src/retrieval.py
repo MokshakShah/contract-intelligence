@@ -8,6 +8,7 @@ import numpy as np
 from rank_bm25 import BM25Okapi
 
 from .chunking import Chunk
+from .abstention import normalized_scores
 
 
 def _tokens(text: str) -> list[str]:
@@ -73,14 +74,19 @@ class Retriever:
             pairs = [(query, self.chunks[i].text) for i, _ in candidates[:n]]
             reranked = model.predict(pairs)
             candidates = sorted(zip((i for i, _ in candidates[:n]), reranked), key=lambda x: x[1], reverse=True)
+        normalized = normalized_scores([float(score) for _, score in candidates])
         results = []
         doc_counts: dict[str, int] = {}
-        for index, score in candidates:
+        for position, (index, score) in enumerate(candidates):
             chunk = self.chunks[index]
             if self.max_per_doc is not None and doc_counts.get(chunk.doc_path, 0) >= int(self.max_per_doc):
                 continue
             doc_counts[chunk.doc_path] = doc_counts.get(chunk.doc_path, 0) + 1
-            results.append({**chunk.__dict__, "score": float(score)})
+            results.append({
+                **chunk.__dict__,
+                "score": float(score),
+                "normalized_score": normalized[position],
+            })
             if len(results) >= limit:
                 break
         return results
