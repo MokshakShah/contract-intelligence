@@ -1,6 +1,9 @@
 """Pluggable BM25, dense, hybrid, and optional cross-encoder retrieval."""
 
 import re
+from functools import lru_cache
+import hashlib
+import json
 from pathlib import Path
 from typing import Any
 
@@ -9,6 +12,9 @@ from rank_bm25 import BM25Okapi
 
 from .chunking import Chunk
 from .abstention import normalized_scores
+from .chunking import chunk_documents
+from .data import load_corpus, load_mini_queries, needed_document_paths
+from .abstention import should_abstain
 
 
 def _tokens(text: str) -> list[str]:
@@ -90,3 +96,35 @@ class Retriever:
             if len(results) >= limit:
                 break
         return results
+
+
+def _config_key(config: dict[str, Any]) -> str:
+    return hashlib.sha256(
+        json.dumps(config, sort_keys=True, default=str).encode("utf-8")
+    ).hexdigest()
+
+
+@lru_cache(maxsize=4)
+def _cached_service(config_json: str) -> Retriever:
+    config = json.loads(config_json)
+    queries = load_mini_queries()
+    corpus = load_corpus(needed_document_paths(queries))
+    chunks = chunk_documents(corpus, config.get("chunking", {}))
+    return Retriever(chunks, config.get("retrieval", {}))
+
+
+def search(query: str, config: dict[str, Any], k: int | None = None) -> dict[str, Any]:
+    """Search the shared cached index and apply configured abstention."""
+    if not query.strip():
+        raise ValueError("Query must not be empty")
+    retriever = _cached_service(json.dumps(config, sort_keys=True, default=str))
+    limit = k or int(config.get("retrieval", {}).get("top_k", 8))
+    results = retriever.retrieve(query.strip(), limit)
+    abstention_config = config.get("abstention", {"rule": "none"})
+    return {
+        "query": query,
+        "results": results,
+        "abstained": should_abstain(results, abstention_config),
+        "threshold": abstention_config.get("threshold"),
+        "config_key": _config_key(config),
+    }
