@@ -1,1 +1,11 @@
-{}
+chunking:
+  strategy: fixed
+  chunk_size: 500
+  overlap: 0
+retrieval:
+  method: bm25
+  top_k: 8
+  max_chunks_per_doc: null
+  rerank: false
+abstention:
+  enabled: false
